@@ -16,31 +16,31 @@ var tumblr = require('tumblr');
 var accessToken = "";
 var accessSecret = "";
 var oauth = {
-  consumer_key: process.env.TUMBLR_CONSUMER_KEY,
-  consumer_secret: process.env.TUMBLR_CONSUMER_SECRET,
-  token: accessToken,
-  token_secret: accessSecret
+	consumer_key: process.env.TUMBLR_CONSUMER_KEY,
+	consumer_secret: process.env.TUMBLR_CONSUMER_SECRET,
+	token: accessToken,
+	token_secret: accessSecret
 };
 //set up Oauthrequirements
 var passport = require('passport'),
-	util = require('util'),
-	passportTumblrStrategy = require('passport-tumblr').Strategy;
+util = require('util'),
+passportTumblrStrategy = require('passport-tumblr').Strategy;
 
 //Set up passport session set up.
 //This allows persistant login sessions so the user doesn't need to keep logging in everytime
 //for their access token
 passport.serializeUser(function(user, done) {
-  done(null, user);
+	done(null, user);
 });
 
 passport.deserializeUser(function(obj, done) {
-  done(null, obj);
+	done(null, obj);
 });
 
 // Simple route middleware to ensure user is authenticated.
 function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) { return next(); }
- 	res.redirect('/');
+	if (req.isAuthenticated()) { return next(); }
+	res.redirect('/');
 }
 
 
@@ -57,8 +57,8 @@ passport.use(new passportTumblrStrategy({
 	process.nextTick(function() {
 
 		return done(null, profile);
-		});
-	}));
+	});
+}));
 
 //Configures the Template engine
 app.engine('handlebars', handlebars());
@@ -85,17 +85,39 @@ app.get('/auth', passport.authenticate('tumblr'), function(req, res) {
 });
 //we need to set up a callback route too
 app.get('/auth/callback', 
-  passport.authenticate('tumblr', { failureRedirect: '/' }),
-  function(req, res) {
-    res.redirect('/home');
-  });
+	passport.authenticate('tumblr', { failureRedirect: '/' }),
+	function(req, res) {
+		res.redirect('/home');
+	});
 
-//this route will display some default data
 app.get('/home', ensureAuthenticated, function(req, res) {
+	res.render('home');
+});
+
+//this route will display all the data
+app.get('/home/default', ensureAuthenticated, function(req, res) {
 	//setup a new tumblr user with authentication
 	var user = new tumblr.User(oauth);
-
+	user.dashboard(function(err, response) {
+		var data = [];
+		console.log(response);
+		//because this is syncrhonous, we have to do a for loop recursively and render only when it's done
+		function saveData(i) {
+			if (i < response.posts.length) { 
+				var temp = {};
+				temp.name = response.posts[i].short_url;
+				temp.posts = response.posts[i].note_count;
+				data.push(temp);
+				saveData(i+1);
+			}
+		}
+		saveData(0);
+		res.json(data);
+	});
 });
+
+
+
 //set environment ports and start application
 app.set('port', process.env.PORT || 3000);
 http.createServer(app).listen(app.get('port'), function(){
