@@ -1,5 +1,3 @@
-Boilerplate
+TumblrAppExample
 ===========
-
-Boilerplate for COGS 121. This should provide a basic set up for node.js. 
-Make sure you run npm install before using
+TumblrAppExample. Code for Discussion 3 in setting up tumblr API calls and displaying them with d3.js

@@ -1,7 +1,11 @@
 {
-  "name": "Boilerplate",
+  "name": "TumblrAppExample",
   "version": "0.0.1",
   "author": "Chu Shao",
+    "repository": {
+        "type": "git"
+      , "url": "https://github.com/COGS121/TumblrAppExample.git"
+    },  
   "scripts": {
     "start": "node app.js"
   },
@@ -11,8 +15,8 @@
     "mongodb": "*",
     "mongoose": "*",
     "passport": "*",
-    "passport-facebook": "*",
-    "passport-twitter": "*",
+    "passport-tumblr": "*",
+    "tumblr": "*",
     "dotenv": "*"
   },
   "engines": {
